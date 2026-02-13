@@ -41,6 +41,6 @@
       record: "{{ item.item }}.{{ domain_name }}" #mongodb.sgrdevsecops.fun
       type: A 
       ttl: 1
-      values: "{{ item.instances[0].private_ip_address }}"
+      value: "{{ item.instances[0].private_ip_address }}"
       overwrite: true
-    loop: "{{ ec2_output.results}}"
+    loop: "{{ ec2_output.results }}"
