@@ -3,7 +3,9 @@
   become: yes
   tasks:
   - name: inatll mysql-server
-    ansible.builtin.command: dnf install mysql-server -y
+    ansible.builtin.package:
+      name: mysql-server
+      state: present
   
   - name: mysqld start and enable
     ansible.builtin.service:
