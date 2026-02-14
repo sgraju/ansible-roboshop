@@ -21,14 +21,24 @@
       shell: /sbin/nologin
       home: /app
 
+  - name: remove app directory
+    ansible.builtin.file:
+      path: /app
+      state: absent
+
   - name: create app directory
     ansible.builtin.file:
       state: directory
       path: /app
 
+  - name: detelte catalogue file
+    ansible.builtin.file:
+      path: /tmp/catalogue.zip
+      state: absent
+
   - name: download catalogue applciation
     ansible.builtin.get_url:
-      url: curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip
+      url: https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip
       dest: /tmp/catalogue.zip
 
   - name: extract catalogue applciation
@@ -57,7 +67,7 @@
       state: present
 
   - name: connect to mongodb catalogue
-    ansible.builtin.command: mongosh --host mongodb.sgrdevsecops.fun </app/db/master-data.js
+    ansible.builtin.command: mongosh mongodb.sgrdevsecops.fun --quiet --eval "db.getMongo().getDBNames().indexOf('catalogue')"
     register: catalogue_output
 
   # - name: evaluate catalogue database
@@ -74,8 +84,15 @@
     ansible.builtin.shell: mongosh --host mongodb.sgrdevsecops.fun </app/db/master-data.js
     when: catalogue_output.stdout | int < 0
 
-  - name: start and enable catalogue
-    ansible.builtin.service:
+  # - name: start and enable cataalogue
+  #   ansible.builtin.service:
+  #     name: catalogue
+  #     enabled: yes
+  #     state: started
+  
+  - name: daemon reload enable and start catalogue
+    ansible.builtin.systemd_service:
       name: catalogue
-      ensbled: yes
+      ensbled: true
       state: started
+      daemon_reload: true
